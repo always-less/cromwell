@@ -22,7 +22,7 @@ object BackendConfiguration {
   private val DefaultBackendName = BackendConfig.getString("default")
   private val BackendProviders = BackendConfig.getConfig("providers")
   private val BackendNames: Set[String] = BackendProviders.entrySet().asScala.map(_.getKey.split("\\.").toSeq.head).toSet
-
+  
   val AllBackendEntries: List[BackendConfigurationEntry] = BackendNames.toList map { backendName =>
     val entry = BackendProviders.getConfig(backendName)
     BackendConfigurationEntry(

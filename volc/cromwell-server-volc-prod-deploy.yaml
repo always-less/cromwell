@@ -1,0 +1,159 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: p-cromwell-server-test1
+    ingress-path: pipeline-cromwell
+    mlplatform.volcengine.com/account-id: "2100000825"
+    mlplatform.volcengine.com/flavor-id: ml.g1ie.xlarge
+    mlplatform.volcengine.com/task-id: p-cromwell-server-test1
+    mlplatform.volcengine.com/task-type: pipeline-cromwell
+  name: p-cromwell-server-test1
+  namespace: mlplatform-pipeline
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: p-cromwell-server-test1
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      annotations:
+        mlplatform.volcengine.com/account-id: "2100000825"
+        mlplatform.volcengine.com/flavor-id: ml.g1ie.xlarge
+        mlplatform.volcengine.com/sidecar: '{
+          "name":"goofys-sidecar","image":"cr-cn-beijing.volces.com/ml_platform/cloudfs-init:test_sync_3","command":["/bin/sh","-c", 
+          "trap \"echo enter trap logic ;  until [ -f /tmp/lifecycle/done.lock ];\n do\n         sleep 1s && echo not done ;\n done; \n echo get lock done ;exit 0; \" TERM KILL;\n    
+           trap \"echo begin umount ; /entrypoint umount;\n          echo end of umount; sleep 10s \" EXIT  \n    
+           rm -rf /tmp/lifecycle/done.lock;\n          /entrypoint mount && \n until [ -f /tmp/lifecycle/done.lock ];\n do\n sleep 1s;\n done;\n
+           echo normal exit;\n exit 0"],
+                "env":[
+                  {"name":"ENDPOINT","value":"http://tos-s3-cn-beijing.volces.com"},
+                  {"name":"REGION","value":"cn-beijing"},
+                  {"name":"STORAGES","value":"[
+                    {\"Type\":\"Tos\",\"MountPath\":\"/cromwell-test\",\"Bucket\":\"cromwell-test\"}
+                  ]"},
+                  {"name":"RUNTIME_ENV","value":"normal"},
+                  {"name":"CLOUDFS_ROOT_PATH_NAME","value":"mlplatform_cromwell_server_jiyinjia_test10"},
+                  {"name":"SIDECAR_BIZ_TYPE","value":"custom_task"},
+                  {"name":"AWS_ACCESS_KEY_ID","value":"AKLTOGI4OTJhZDA5MDZhNDc2ZTk4NTE4ZGMyYTdjMDAxY2E"},
+                  {"name":"AWS_SECRET_ACCESS_KEY","value":"TldGbU4yVTRZV0U0WVRBd05HRXdPV0UyT1RCak56ZzBNMk14TVRZMVptUQ=="}
+                ],
+                "resources":{
+                  "limits":{"cpu":"2000m","memory":"4543348019200m"},
+                  "requests":{"cpu":"2000m","memory":"4543348019200m"}
+                },
+                "volumeMounts":[
+                  {"name":"lifecycle","mountPath":"/tmp/lifecycle/"},
+                  {"name":"goofys-sidecar-0","mountPath":"/cromwell-test","mountPropagation":"Bidirectional"}
+                ],
+                "lifecycle":{
+                  "postStart":{"exec":{"command":["/entrypoint","wait"]}}
+                },
+                "imagePullPolicy":"Always",
+                "securityContext":{"capabilities":{"add":["SYS_ADMIN"]},"privileged":true}
+              }'
+      labels:
+        app: p-cromwell-server-test1
+        mlplatform.volcengine.com/account-id: "2100000825"
+        mlplatform.volcengine.com/flavor-id: ml.g1ie.xlarge
+        mlplatform.volcengine.com/task-id: p-cromwell-server-test1
+        mlplatform.volcengine.com/task-type: pipeline-cromwell
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                - key: mlplatform.volcengine.com/account-id
+                  operator: In
+                  values:
+                    - "2100000825"
+      containers:
+        - command:
+            - /bin/bash
+            - -c
+            - '"sleep 10 && cd /app && bash cromwell_server_start.sh ; sleep 60"'
+          env:
+            - name: TOS_ENDPOINT_URL
+              value: http://tos-s3-cn-beijing.volces.com
+            - name: TOS_REGION
+              value: cn-beijing
+            - name: SERVICE_REGION
+              value: cn-beijing
+            - name: VOLC_ML_PLATFORM_ENV
+              value: PROD
+            - name: VOLC_AK
+              value: AKLTOGI4OTJhZDA5MDZhNDc2ZTk4NTE4ZGMyYTdjMDAxY2E
+            - name: VOLC_SK
+              value: TldGbU4yVTRZV0U0WVRBd05HRXdPV0UyT1RCak56ZzBNMk14TVRZMVptUQ==
+            - name: CROMWELL_TOS_BUCKET
+              value: cromwell-test
+            - name: SWAGGER_BASE_PATH
+              value: /pipeline-cromwell-test
+            - name: CROMWELL_TOS_PREFIX
+              value: ""
+            - name: CROMWELL_TOS_MOUNT_PATH
+              value: /cromwell-test
+            - name: CROMWELL_BUILD_CENTAUR_SLICK_PROFILE
+              value: slick.jdbc.MySQLProfile$
+            - name: CROMWELL_BUILD_CENTAUR_JDBC_DRIVER
+              value: com.mysql.cj.jdbc.Driver
+            - name: CROMWELL_BUILD_CENTAUR_JDBC_URL
+              value: "jdbc:mysql://mysql35b88ea921e6.rds.ivolces.com:3306/cromwell?allowPublicKeyRetrieval=true&useSSL=false&rewriteBatchedStatements=true&serverTimezone=UTC&useInformationSchema=true"
+            - name: CROMWELL_BUILD_CENTAUR_JDBC_USER
+              value: cromwell
+            - name: CROMWELL_BUILD_CENTAUR_JDBC_PASSWORD
+              value: HzVAkwfTbk3
+            - name: CROMWELL_BUILD_RESOURCES_DIRECTORY
+              value: target/ci/resources
+            - name: CROMWELL_BUILD_PAPI_JSON_FILE
+              value: target/ci/resources/cromwell-centaur-service-account.json
+            - name: CROMWELL_BUILD_CENTAUR_READ_LINES_LIMIT
+              value: "128000"
+          image: cr-cn-beijing.volces.com/machinelearning/pipeline:cromwell-78-volc-prod-wxc-0.12
+          imagePullPolicy: Always
+          lifecycle:
+            preStop:
+              exec:
+                command:
+                  - bash
+                  - -c
+                  - sh /app/graceful_exit.sh
+          name: p-cromwell-server-test1
+          ports:
+            - containerPort: 8000
+              protocol: TCP
+          resources:
+            limits:
+              cpu: "10"
+              memory: 32Gi
+            requests:
+              cpu: "8"
+              memory: 24Gi
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+            - mountPath: /vepfs-for-aml
+              name: pfs-0
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: { }
+      terminationGracePeriodSeconds: 1000
+      tolerations:
+        - effect: NoSchedule
+          key: mlplatform.volcengine.com/account-id
+          operator: Equal
+          value: "2100000825"
+      volumes:
+        - hostPath:
+            path: /mnt/vepfs
+            type: Directory
+          name: pfs-0

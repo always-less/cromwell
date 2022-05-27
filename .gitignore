@@ -16,6 +16,7 @@ tags
 !/.idea/inspectionProfiles/Project_Default.xml
 target
 /site
+volc/jar
 
 # custom config
 cromwell-executions
@@ -52,3 +53,5 @@ tesk_application.conf
 **/venv/
 exome_germline_single_sample_v1.3/
 **/*.pyc
+volc/project
+volc-signer-java/

@@ -6,7 +6,9 @@ import cromwell.database.sql.EngineSqlDatabase
 
 object EngineSlickDatabase {
   def fromParentConfig(parentConfig: Config = ConfigFactory.load): EngineSlickDatabase = {
+
     val databaseConfig = SlickDatabase.getDatabaseConfig("engine", parentConfig)
+    println("db Config is "+ databaseConfig);
     new EngineSlickDatabase(databaseConfig)
   }
 }
