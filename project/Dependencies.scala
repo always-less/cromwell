@@ -515,6 +515,8 @@ object Dependencies {
 
   val tesBackendDependencies: List[ModuleID] = akkaHttpDependencies
 
+  val volcBackendDependencies: List[ModuleID] = akkaHttpDependencies
+
   val sfsBackendDependencies = List (
     "org.lz4" % "lz4-java" % lz4JavaV
   )

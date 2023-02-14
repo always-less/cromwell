@@ -259,12 +259,11 @@ lazy val bcsBackend = (project in backendRoot / "bcs")
   .dependsOn(services % "test->test")
   .dependsOn(common % "test->test")
 
+
 lazy val volcBackend = (project in backendRoot / "volc")
-//  .withLibrarySettings("cromwell-volc-backend", tesBackendDependencies)
-  .withExecutableSettings("cromwell-volc-backend", tesBackendDependencies)
-  .dependsOn(sfsBackend)
-  .dependsOn(ftpFileSystem)
-  .dependsOn(drsFileSystem)
+//  .withLibrarySettings("cromwell-volc-backend", volcBackendDependencies)
+  .withExecutableSettings("cromwell-volc-backend", volcBackendDependencies)
+  .dependsOn(sfsBackend % "provided->compile")
   .dependsOn(backend % "test->test")
   .dependsOn(common % "test->test")
 

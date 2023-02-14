@@ -24,12 +24,15 @@ apt-get install -y adoptopenjdk-11-hotspot
 #RUN sh -c "$(curl -fsSL https://ml-platform-public-examples-cn-beijing.tos-cn-beijing.volces.com/cli-binary/install.sh)" && \
 #    export PATH=$HOME/.volc/bin:$PATH
 
-ADD ./jar/cromwell-volc.jar /app/cromwell-volc.jar
+#ADD ./jar/cromwell-volc.jar /app/cromwell-volc.jar
+ADD ./jar/cromwell-78.jar /app/cromwell-volc.jar
+ADD ./jar/cromwell-volc-backend-78.jar /app/cromwell-volc-backend.jar
 ADD ./cromwell_server.conf /app/cromwell_server.conf
 ADD ./cromwell_server_start.sh /app/cromwell_server_start.sh
+ADD ./cromwell_server_local_start.sh /app/cromwell_server_local_start.sh
 ADD graceful_exit.sh /app/graceful_exit.sh
 ADD ./.volc /root/.volc
 RUN chmod -R 777 /app/graceful_exit.sh
 ENV PATH=/root/.volc/bin:$PATH
 
-CMD cd /app && sh cromwell_server_start.sh
+CMD cd /app && sh cromwell_server_local_start.sh
